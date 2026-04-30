@@ -230,6 +230,14 @@ Set-Location "C:\Users\User1\Desktop\devcamel-backend"
 - 운영에서는 `CORS_ALLOWED_ORIGINS` 에 `localhost` 를 남기지 마세요.
 - 운영에서는 DB 포트(`5432`)를 외부에 열지 마세요.
 
+### 배포 문서
+
+- Oracle VM 실배포 순서: `docs/oracle-vm-deploy.md`
+- 운영 백업 / 복구: `docs/backup-restore.md`
+- 배포 직전 최종 점검: `docs/deploy-checklist.md`
+- 운영용 예시 환경 파일: `.env.prod.example`
+- Caddy 리버스 프록시 예시: `deploy/Caddyfile`
+
 ## 데이터베이스 / 마이그레이션
 
 Flyway가 애플리케이션 시작 시 자동 실행됩니다.
