@@ -45,6 +45,10 @@ jobs:
           test -n "$SSH_HOST"
           test -n "$SSH_USER"
           test -n "$DEPLOY_PATH"
+          DEPLOY_REF="${DEPLOY_REF#ref: }"
+          DEPLOY_REF="${DEPLOY_REF#refs/heads/}"
+          DEPLOY_REF="${DEPLOY_REF#refs/tags/}"
+          test -n "$DEPLOY_REF"
           ssh -i ~/.ssh/oracle_vm_key -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" "DEPLOY_PATH='$DEPLOY_PATH' DEPLOY_BRANCH='$DEPLOY_REF' HEALTHCHECK_URL='$HEALTHCHECK_URL' EXTERNAL_HEALTHCHECK_URL='$EXTERNAL_HEALTHCHECK_URL' bash -s" <<'REMOTE'
           set -euo pipefail
           cd "$DEPLOY_PATH"
