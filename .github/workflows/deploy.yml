@@ -1,0 +1,56 @@
+﻿name: Deploy to Oracle VM
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or tag to deploy
+        required: true
+        default: main
+permissions:
+  contents: read
+concurrency:
+  group: oracle-vm-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Prepare SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ORACLE_VM_SSH_KEY }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/oracle_vm_key
+          chmod 600 ~/.ssh/oracle_vm_key
+      - name: Add VM host key
+        env:
+          SSH_HOST: ${{ secrets.ORACLE_VM_HOST }}
+          SSH_PORT: ${{ secrets.ORACLE_VM_SSH_PORT || '22' }}
+        run: |
+          test -n "$SSH_HOST"
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+      - name: Deploy on VM
+        env:
+          SSH_HOST: ${{ secrets.ORACLE_VM_HOST }}
+          SSH_USER: ${{ secrets.ORACLE_VM_USER || 'ubuntu' }}
+          SSH_PORT: ${{ secrets.ORACLE_VM_SSH_PORT || '22' }}
+          DEPLOY_PATH: ${{ secrets.ORACLE_VM_DEPLOY_PATH || '/home/ubuntu/devcamel-backend' }}
+          DEPLOY_REF: ${{ inputs.ref }}
+          HEALTHCHECK_URL: ${{ secrets.ORACLE_VM_HEALTHCHECK_URL || 'http://127.0.0.1:18080/actuator/health' }}
+          EXTERNAL_HEALTHCHECK_URL: ${{ secrets.ORACLE_VM_EXTERNAL_HEALTHCHECK_URL }}
+        run: |
+          test -n "$SSH_HOST"
+          test -n "$SSH_USER"
+          test -n "$DEPLOY_PATH"
+          ssh -i ~/.ssh/oracle_vm_key -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" "DEPLOY_PATH='$DEPLOY_PATH' DEPLOY_BRANCH='$DEPLOY_REF' HEALTHCHECK_URL='$HEALTHCHECK_URL' EXTERNAL_HEALTHCHECK_URL='$EXTERNAL_HEALTHCHECK_URL' bash -s" <<'REMOTE'
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+          git fetch origin "$DEPLOY_BRANCH"
+          git checkout "$DEPLOY_BRANCH"
+          git pull --ff-only origin "$DEPLOY_BRANCH"
+          chmod +x scripts/deploy.sh
+          DEPLOY_SKIP_PULL=true scripts/deploy.sh
+          REMOTE
