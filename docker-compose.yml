@@ -3,19 +3,24 @@ services:
     image: postgres:16
     container_name: devcamel-postgres
     environment:
-      POSTGRES_DB: backendlab
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    # 운영에서는 외부에 DB 포트를 노출하지 마세요.
+    # 로컬 개발 시에만 docker-compose.override.yml 에서 ports 매핑을 추가하세요.
+    expose:
+      - "5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d backendlab"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 20
       start_period: 5s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   backend:
     build:
@@ -26,21 +31,31 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/backendlab
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?CORS_ALLOWED_ORIGINS is required}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:MaxRAMPercentage=75
+        -XX:+ExitOnOutOfMemoryError
+        -Djava.security.egd=file:/dev/./urandom
     ports:
-      - "18080:8080"
+      - "127.0.0.1:18080:8080"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/ping"]
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 3s
       retries: 10
       start_period: 30s
     restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
 volumes:
   postgres-data:
-
-

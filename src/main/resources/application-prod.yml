@@ -1,0 +1,25 @@
+# 운영 프로파일: 추가로 비활성화/조여야 할 항목만 두고, 비밀값은 환경변수로 주입.
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+        generate_statistics: true
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+

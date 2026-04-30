@@ -1,0 +1,4 @@
+# 기본적으로 자동 병합되는 override 파일은 중립 상태로 둡니다.
+# 로컬 개발 시에는 `docker-compose.dev.yml` 을 명시적으로 추가해서 사용하세요.
+services: {}
+

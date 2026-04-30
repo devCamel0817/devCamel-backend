@@ -1,38 +1,68 @@
 ﻿spring:
   application:
     name: backend-lab
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/backendlab}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    # 운영에서는 반드시 환경변수로 주입 (기본값 fallback 없음)
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
-        format_sql: true
-        generate_statistics: true
+        format_sql: false
+        generate_statistics: false
         jdbc.batch_size: 1000
         order_inserts: true
         order_updates: true
   flyway:
     enabled: true
-    baseline-on-migrate: true
+    # baseline-on-migrate 는 위험하므로 dev 프로파일에서만 true 로 override
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    root: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+    org.hibernate.stat: WARN
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN
 
 management:
   endpoints:
-    web.exposure.include: health,info,metrics
-  endpoint.health.show-details: always
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+      show-components: never
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  info:
+    env:
+      enabled: false
 
 server:
   port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+  forward-headers-strategy: framework
 
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    # 운영 도메인만 명시적으로 콤마 구분으로 주입. 와일드카드 금지.
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}

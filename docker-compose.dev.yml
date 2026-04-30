@@ -1,0 +1,11 @@
+# 로컬 개발 전용 compose overlay.
+# 사용 예시:
+# docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.example up --build -d
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:5433:5432"
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
