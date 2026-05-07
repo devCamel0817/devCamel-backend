@@ -31,3 +31,14 @@ app:
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
 
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+
+telegram:
+  enabled: ${TELEGRAM_ENABLED:false}
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  chat-id: ${TELEGRAM_CHAT_ID:}
+
+content:
+  scheduler:
+    cron: "0 0 18 * * *"

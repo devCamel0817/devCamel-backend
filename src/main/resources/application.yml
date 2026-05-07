@@ -64,5 +64,27 @@ server:
 
 app:
   cors:
-    # 운영 도메인만 명시적으로 콤마 구분으로 주입. 와일드카드 금지.
     allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+gemini:
+  api-key: ${GEMINI_API_KEY}
+  model: gemini-2.0-flash
+  base-url: https://generativelanguage.googleapis.com
+
+telegram:
+  enabled: ${TELEGRAM_ENABLED:false}
+  bot-token: ${TELEGRAM_BOT_TOKEN:}
+  chat-id: ${TELEGRAM_CHAT_ID:}
+  base-url: https://api.telegram.org
+
+content:
+  scheduler:
+    cron: "0 0 18 * * *"
+  news:
+    rss-urls:
+      - https://www.yna.co.kr/rss/economy.xml
+      - https://www.hankyung.com/feed/economy
+      - https://news.kbs.co.kr/rss/rss.do?cat=economy
+    max-items: 10
+
+
