@@ -34,7 +34,9 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.32'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
     implementation 'com.rometools:rome:2.1.0'
-    implementation 'com.google.genai:google-genai:1.53.0'
+    implementation('com.google.genai:google-genai:1.53.0') {
+        exclude group: 'com.fasterxml.jackson.module', module: 'jackson-module-kotlin'
+    }
 }
 
 bootRun {
