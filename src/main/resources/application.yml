@@ -19,6 +19,7 @@
         jdbc.batch_size: 1000
         order_inserts: true
         order_updates: true
+        type.json_format_mapper: org.hibernate.type.format.StringJsonFormatMapper
   flyway:
     enabled: true
     # baseline-on-migrate 는 위험하므로 dev 프로파일에서만 true 로 override
