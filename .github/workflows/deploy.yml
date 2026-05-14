@@ -6,6 +6,8 @@ on:
         description: Branch or tag to deploy
         required: true
         default: main
+  push:
+    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -16,6 +18,7 @@ jobs:
     name: Deploy via SSH
     runs-on: ubuntu-latest
     environment: production
+    if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '--deploy') }}
     steps:
       - name: Prepare SSH key
         env:
@@ -38,7 +41,7 @@ jobs:
           SSH_USER: ${{ secrets.ORACLE_VM_USER || 'ubuntu' }}
           SSH_PORT: ${{ secrets.ORACLE_VM_SSH_PORT || '22' }}
           DEPLOY_PATH: ${{ secrets.ORACLE_VM_DEPLOY_PATH || '/home/ubuntu/devcamel-backend' }}
-          DEPLOY_REF: ${{ inputs.ref }}
+          DEPLOY_REF: ${{ inputs.ref || github.ref_name }}
           HEALTHCHECK_URL: ${{ secrets.ORACLE_VM_HEALTHCHECK_URL || 'http://127.0.0.1:18080/actuator/health' }}
           EXTERNAL_HEALTHCHECK_URL: ${{ secrets.ORACLE_VM_EXTERNAL_HEALTHCHECK_URL }}
         run: |
