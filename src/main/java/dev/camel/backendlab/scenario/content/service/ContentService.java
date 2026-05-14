@@ -36,13 +36,19 @@ public class ContentService {
         }
 
         List<String> headlines = newsRssClient.fetchEconomyHeadlines();
+
+
         if (headlines.isEmpty()) {
             log.warn("뉴스 헤드라인 수집 실패: 스크립트 생성 스킵");
             throw new IllegalStateException("뉴스 헤드라인을 수집할 수 없습니다.");
+        } else {
+            headlines.forEach(headline -> log.info("헤드라인 : {}",headline));
         }
 
         String script = geminiClient.generateYoutubeScript(headlines);
         String headlinesSummary = String.join(" | ", headlines);
+
+        log.info("헤드라인 요악 => {}", headlinesSummary);
 
         ContentScript savedScript = contentScriptRepository.save(
                 ContentScript.of(today, headlinesSummary, script)

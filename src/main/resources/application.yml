@@ -68,8 +68,7 @@ app:
 
 gemini:
   api-key: ${GEMINI_API_KEY}
-  model: gemini-2.0-flash
-  base-url: https://generativelanguage.googleapis.com
+  model: gemini-2.5-pro-preview-05-06
 
 telegram:
   enabled: ${TELEGRAM_ENABLED:false}
