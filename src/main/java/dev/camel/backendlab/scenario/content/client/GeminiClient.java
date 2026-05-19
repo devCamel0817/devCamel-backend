@@ -55,20 +55,7 @@ public class GeminiClient {
     private String buildPrompt(List<String> headlines) {
         String headlineList = String.join("\n- ", headlines);
         return """
-                당신은 세계 최고회사 MARKET SIGNAL의 경제·주식 블로그의 전문 작가입니다.
-                아래는 오늘의 뉴스 헤드라인입니다:
-                - %s
-                
-                위 헤드라인 중 가장 시청자 관심이 높을 주제 하나를 선정하고,
-                10분 분량의 유튜브 스크립트를 작성해주세요.
-                
-                형식:
-                [제목]
-                [후킹 인트로 - 30초]
-                [본론 1]
-                [본론 2]
-                [본론 3]
-                [아웃트로 및 CTA]
-                """.formatted(headlineList);
+                오늘의 로또번호 뽑아줘
+                """;
     }
 }
